@@ -48,14 +48,12 @@ const Hero = () => {
         <div className="relative hidden md:flex items-center justify-center animate-fade-in">
           <div className="absolute -inset-4 rounded-full border-2 border-labor-100 animate-pulse-slow"></div>
           <div className="absolute inset-0 rounded-full border-2 border-labor-200 animate-pulse-slow" style={{animationDelay: '1s'}}></div>
-          <div className="bg-white p-3 rounded-full shadow-xl">
-            <div className="h-[300px] w-[300px] overflow-hidden rounded-full border-4 border-white shadow-inner">
-              <img 
-                src="/lovable-uploads/00803268-75d6-468e-a7ab-a6971462761b.png" 
-                alt="Vereadora Neia Marques" 
-                className="h-full w-full object-cover"
-              />
-            </div>
+          <div className="relative h-[300px] w-[300px] rounded-full overflow-hidden border-4 border-labor-700 shadow-xl">
+            <img 
+              src="/lovable-uploads/974bbb4b-97d8-4182-aa1f-08d085dbb704.png" 
+              alt="Vereadora Neia Marques" 
+              className="h-full w-full object-cover"
+            />
           </div>
         </div>
       </div>

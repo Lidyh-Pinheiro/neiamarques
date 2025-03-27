@@ -7,27 +7,27 @@ const Social = () => {
   const activities = [
     {
       id: 1,
-      title: "Participação em reunião na FUNPAPA",
-      date: "05 de fevereiro de 2023",
-      description: "Reunião com o presidente da FUNPAPA para discutir melhorias nos serviços destinados à população.",
-      image: "/lovable-uploads/679bb753-3fcc-46ce-9b05-6e72e268da27.png",
-      category: "Assistência Social"
-    },
-    {
-      id: 2,
-      title: "Visita ao SESMA",
-      date: "07 de fevereiro de 2023",
-      description: "Visita à Secretaria Municipal de Saúde para discutir estratégias para fortalecer o atendimento e garantir maior qualidade de vida para a população.",
-      image: "/lovable-uploads/5d318025-378c-42b8-b8b1-133b7505c605.png",
-      category: "Saúde"
-    },
-    {
-      id: 3,
       title: "Reunião na COHAB",
       date: "11 de fevereiro de 2023",
       description: "Encontro com o presidente da COHAB para discutir projetos habitacionais beneficiando a comunidade.",
-      image: "/lovable-uploads/e93ea8c4-d6a7-408b-87b3-8169247ea224.png",
+      image: "/lovable-uploads/0bcc626c-8394-4046-8d9c-1d2dde85b46c.png",
       category: "Habitação"
+    },
+    {
+      id: 2,
+      title: "Participação em reunião na FUNPAPA",
+      date: "05 de fevereiro de 2023",
+      description: "Reunião com o presidente da FUNPAPA para discutir melhorias nos serviços destinados à população.",
+      image: "/lovable-uploads/67cfcebf-4a79-4849-818a-ec72c2d617e6.png",
+      category: "Assistência Social"
+    },
+    {
+      id: 3,
+      title: "Visita à SESMA",
+      date: "07 de fevereiro de 2023",
+      description: "Visita à Secretaria Municipal de Saúde para discutir estratégias para fortalecer o atendimento e garantir maior qualidade de vida para a população.",
+      image: "/lovable-uploads/bc147dfa-6c08-4256-8373-31dafc62420a.png",
+      category: "Saúde"
     }
   ];
 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +9,9 @@ import { toast } from "@/hooks/use-toast";
 import { Calendar as CalendarView } from "@/components/ui/calendar";
 import { Calendar, Clock, Instagram, Facebook, Twitter, LogOut, Share2, Edit, Trash2, Plus, Settings, Check, Camera } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AgendaForm from "@/components/AgendaForm";
 import DeleteAgendaItem from "@/components/DeleteAgendaItem";
 import SocialShare from "@/components/SocialShare";
@@ -24,7 +26,6 @@ interface AgendaPost {
   status: string;
 }
 
-// Custom TikTok icon since it's not in lucide-react
 const TikTokIcon = () => (
   <svg
     width="15"
@@ -49,6 +50,7 @@ const Agenda = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showAdminSettings, setShowAdminSettings] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -154,8 +156,17 @@ const Agenda = () => {
     
     return typeIcons[type.toLowerCase()] || <Clock className="h-4 w-4" />;
   };
-  
-  // Filter posts by selected date
+
+  const getMonthFilteredPosts = () => {
+    if (!selectedMonth) return agendaPosts;
+    
+    return agendaPosts.filter(post => {
+      const postDate = new Date(post.data);
+      const postMonth = format(postDate, 'MMMM', { locale: ptBR });
+      return postMonth === selectedMonth;
+    });
+  };
+
   const filteredPosts = selectedDate 
     ? agendaPosts.filter(post => {
         const postDate = new Date(post.data);
@@ -163,10 +174,36 @@ const Agenda = () => {
                postDate.getMonth() === selectedDate.getMonth() && 
                postDate.getFullYear() === selectedDate.getFullYear();
       })
-    : agendaPosts;
-  
-  // Get dates that have posts for highlighting in calendar
+    : getMonthFilteredPosts();
+
   const datesWithPosts = agendaPosts.map(post => new Date(post.data));
+
+  const handleStatusChange = async (postId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from("agenda_posts")
+        .update({ status: newStatus })
+        .eq("id", postId);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Status atualizado",
+        description: `O item foi marcado como ${newStatus}`,
+      });
+      
+      setAgendaPosts(agendaPosts.map(post => 
+        post.id === postId ? { ...post, status: newStatus } : post
+      ));
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-labor-50/50 bg-opacity-80">
@@ -175,7 +212,7 @@ const Agenda = () => {
           <div className="mb-10 text-center">
             <h1 className="text-4xl font-display font-bold mb-4 text-labor-800">Agenda de Postagens</h1>
             <div className="divider mx-auto"></div>
-            <p className="text-gray-600 mt-4">Acompanhe a programação semanal da Vereadora Neia Marques</p>
+            <p className="text-gray-600 mt-4 text-white">Confira a agenda de publicações</p>
             
             <div className="flex justify-center gap-4 mt-6">
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-labor-700 hover:text-labor-900 transition-colors">
@@ -192,7 +229,6 @@ const Agenda = () => {
               </a>
             </div>
             
-            {/* Share Button */}
             <div className="mt-6 flex justify-center">
               <SocialShare url={shareUrl} />
             </div>
@@ -247,10 +283,28 @@ const Agenda = () => {
                   </div>
                   <div className="flex gap-2">
                     <AgendaForm onSuccess={fetchAgendaPosts} />
+                    
+                    <Select 
+                      value={selectedMonth} 
+                      onValueChange={setSelectedMonth}
+                    >
+                      <SelectTrigger className="w-[140px] bg-white text-black">
+                        <SelectValue placeholder="Filtrar mês" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Todos os meses</SelectItem>
+                        {getMonths().map((month) => (
+                          <SelectItem key={month} value={month}>
+                            {month}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="text-white border-white/30 hover:bg-labor-800 hover:text-white"
+                      className="bg-labor-700 text-white border-white/30 hover:bg-labor-800 hover:text-white"
                       onClick={() => setShowAdminSettings(true)}
                     >
                       <Settings className="h-4 w-4 mr-1" /> Admin
@@ -258,7 +312,7 @@ const Agenda = () => {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="text-white border-white/30 hover:bg-labor-800 hover:text-white"
+                      className="bg-labor-700 text-white border-white/30 hover:bg-labor-800 hover:text-white"
                       onClick={handleLogout}
                     >
                       <LogOut className="h-4 w-4 mr-1" /> Sair
@@ -268,7 +322,6 @@ const Agenda = () => {
                 
                 <CardContent className="p-6">
                   <div className="grid md:grid-cols-3 gap-6">
-                    {/* Calendar View */}
                     <div className="md:col-span-1">
                       <Card className="border-labor-200 shadow-sm hover:shadow transition-shadow duration-300">
                         <CardHeader className="bg-labor-50 pb-2">
@@ -302,7 +355,6 @@ const Agenda = () => {
                         </CardContent>
                       </Card>
                       
-                      {/* Legend */}
                       <Card className="border-labor-200 shadow-sm hover:shadow transition-shadow duration-300 mt-6">
                         <CardHeader className="bg-labor-50 pb-2">
                           <h3 className="font-medium text-labor-700">Legenda</h3>
@@ -348,7 +400,6 @@ const Agenda = () => {
                       </Card>
                     </div>
                     
-                    {/* Posts Cards */}
                     <div className="md:col-span-2">
                       {isLoading ? (
                         <div className="text-center py-12">
@@ -362,7 +413,9 @@ const Agenda = () => {
                           <h3 className="text-lg font-medium text-gray-500">
                             {selectedDate 
                               ? "Nenhum item agendado para esta data" 
-                              : "Nenhum item na agenda"}
+                              : selectedMonth
+                                ? `Nenhum item agendado para ${selectedMonth}`
+                                : "Nenhum item na agenda"}
                           </h3>
                           <p className="text-gray-400 mt-2">
                             {selectedDate 
@@ -399,11 +452,26 @@ const Agenda = () => {
                                     </span>
                                   ))}
                                 </div>
-                                <div className="mt-2">
+                                <div className="mt-2 flex justify-between items-center">
                                   <span className={`text-xs px-2 py-1 rounded-full inline-flex items-center gap-1 ${getStatusColor(post.status)}`}>
                                     {post.status === "Concluído" && <Check className="h-3 w-3" />}
                                     {post.status}
                                   </span>
+                                  
+                                  <div className="flex items-center gap-2">
+                                    <label className="flex items-center cursor-pointer text-xs text-gray-700">
+                                      <input
+                                        type="checkbox"
+                                        checked={post.status === "Concluído"}
+                                        onChange={() => handleStatusChange(
+                                          post.id, 
+                                          post.status === "Concluído" ? "Pendente" : "Concluído"
+                                        )}
+                                        className="rounded border-gray-300 text-labor-700 mr-1 focus:ring-labor-700"
+                                      />
+                                      Realizado
+                                    </label>
+                                  </div>
                                 </div>
                               </CardContent>
                             </Card>
@@ -415,7 +483,6 @@ const Agenda = () => {
                 </CardContent>
               </Card>
               
-              {/* Table view for all posts */}
               <Card className="bg-white rounded-lg shadow-md overflow-hidden border-labor-200 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="bg-labor-50 py-3">
                   <h3 className="font-medium text-labor-700">Todos os Agendamentos</h3>
@@ -455,10 +522,21 @@ const Agenda = () => {
                               </div>
                             </TableCell>
                             <TableCell>
-                              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${getStatusColor(post.status)}`}>
-                                {post.status === "Concluído" && <Check className="h-3 w-3" />}
-                                {post.status}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${getStatusColor(post.status)}`}>
+                                  {post.status === "Concluído" && <Check className="h-3 w-3" />}
+                                  {post.status}
+                                </span>
+                                <input
+                                  type="checkbox"
+                                  checked={post.status === "Concluído"}
+                                  onChange={() => handleStatusChange(
+                                    post.id, 
+                                    post.status === "Concluído" ? "Pendente" : "Concluído"
+                                  )}
+                                  className="rounded border-gray-300 text-labor-700 focus:ring-labor-700"
+                                />
+                              </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-1">
@@ -472,7 +550,6 @@ const Agenda = () => {
                     </Table>
                   </div>
                   
-                  {/* Mobile list view */}
                   <div className="md:hidden divide-y divide-gray-200">
                     {agendaPosts.map((post) => (
                       <div key={post.id} className="p-4 hover:bg-gray-50 transition-colors">
@@ -501,6 +578,20 @@ const Agenda = () => {
                                   {post.status === "Concluído" && <Check className="h-3 w-3" />}
                                   {post.status}
                                 </span>
+                              </div>
+                              <div className="mt-2">
+                                <label className="flex items-center cursor-pointer text-xs text-gray-700">
+                                  <input
+                                    type="checkbox"
+                                    checked={post.status === "Concluído"}
+                                    onChange={() => handleStatusChange(
+                                      post.id, 
+                                      post.status === "Concluído" ? "Pendente" : "Concluído"
+                                    )}
+                                    className="rounded border-gray-300 text-labor-700 mr-1 focus:ring-labor-700"
+                                  />
+                                  Realizado
+                                </label>
                               </div>
                             </div>
                           </div>

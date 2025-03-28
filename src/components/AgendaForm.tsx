@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Calendar as CalendarIcon, Check, Pencil, Trash2, Plus, Facebook, Instagram, Twitter, MessageSquare, Camera } from "lucide-react";
+import { Calendar as CalendarIcon, Check, Pencil, Trash2, Plus, Facebook, Instagram, Twitter, MessageSquare, Camera, Clock } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,6 +22,7 @@ interface AgendaPost {
   descricao: string;
   tipo: string;
   status: string;
+  hora?: string;
 }
 
 interface AgendaFormProps {
@@ -66,6 +67,7 @@ const AgendaForm = ({ onSuccess, editingPost }: AgendaFormProps) => {
   const [date, setDate] = useState<Date | undefined>(
     editingPost ? new Date(editingPost.data) : undefined
   );
+  const [time, setTime] = useState(editingPost?.hora || "");
   const [title, setTitle] = useState(editingPost?.titulo || "");
   const [description, setDescription] = useState(editingPost?.descricao || "");
   const [selectedTypes, setSelectedTypes] = useState<string[]>(
@@ -84,6 +86,7 @@ const AgendaForm = ({ onSuccess, editingPost }: AgendaFormProps) => {
       setSelectedTypes(editingPost.tipo.split(","));
       setStatus(editingPost.status);
       setDate(new Date(editingPost.data));
+      setTime(editingPost.hora || "");
     }
   }, [editingPost]);
 
@@ -126,6 +129,7 @@ const AgendaForm = ({ onSuccess, editingPost }: AgendaFormProps) => {
             descricao: description,
             tipo: combinedTypes,
             status: status,
+            hora: time
           })
           .eq("id", editingPost.id);
 
@@ -145,6 +149,7 @@ const AgendaForm = ({ onSuccess, editingPost }: AgendaFormProps) => {
             descricao: description,
             tipo: combinedTypes,
             status: status,
+            hora: time
           });
 
         if (error) throw error;
@@ -161,6 +166,7 @@ const AgendaForm = ({ onSuccess, editingPost }: AgendaFormProps) => {
       setSelectedTypes(["Feed"]);
       setStatus("Pendente");
       setDate(undefined);
+      setTime("");
       setSelectedPlatforms([]);
       setOpen(false);
       onSuccess();
@@ -217,6 +223,19 @@ const AgendaForm = ({ onSuccess, editingPost }: AgendaFormProps) => {
                 />
               </PopoverContent>
             </Popover>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">Hora</label>
+            <div className="flex items-center">
+              <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="flex-1"
+              />
+            </div>
           </div>
           
           <div className="space-y-2">

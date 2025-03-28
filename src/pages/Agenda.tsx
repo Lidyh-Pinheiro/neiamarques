@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +42,16 @@ const TikTokIcon = () => (
     />
   </svg>
 );
+
+// Add the missing getMonths function
+const getMonths = () => {
+  const months = [];
+  for (let i = 0; i < 12; i++) {
+    const date = new Date(2023, i, 1);
+    months.push(format(date, 'MMMM', { locale: ptBR }));
+  }
+  return months;
+};
 
 const Agenda = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

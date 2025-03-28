@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DeleteAgendaItemProps {
   postId: string;
@@ -14,6 +15,7 @@ interface DeleteAgendaItemProps {
 const DeleteAgendaItem = ({ postId, onSuccess }: DeleteAgendaItemProps) => {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleDelete = async () => {
     setLoading(true);
@@ -51,7 +53,7 @@ const DeleteAgendaItem = ({ postId, onSuccess }: DeleteAgendaItemProps) => {
           <Trash2 className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className={isMobile ? "w-[90%] max-w-md mx-auto" : ""}>
         <AlertDialogHeader>
           <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
           <AlertDialogDescription>

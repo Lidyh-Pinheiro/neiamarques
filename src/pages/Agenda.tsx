@@ -43,7 +43,7 @@ const TikTokIcon = () => (
   </svg>
 );
 
-// Add the missing getMonths function
+// Function to get months in Portuguese
 const getMonths = () => {
   const months = [];
   for (let i = 0; i < 12; i++) {
@@ -303,7 +303,7 @@ const Agenda = () => {
                         <SelectValue placeholder="Filtrar mês" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos os meses</SelectItem>
+                        <SelectItem value="all">Todos os meses</SelectItem>
                         {getMonths().map((month) => (
                           <SelectItem key={month} value={month}>
                             {month}
@@ -315,7 +315,7 @@ const Agenda = () => {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="bg-labor-700 text-white border-white/30 hover:bg-labor-800 hover:text-white"
+                      className="bg-red-600 text-white border-white/30 hover:bg-red-800 hover:text-white"
                       onClick={() => setShowAdminSettings(true)}
                     >
                       <Settings className="h-4 w-4 mr-1" /> Admin
@@ -323,7 +323,7 @@ const Agenda = () => {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="bg-labor-700 text-white border-white/30 hover:bg-labor-800 hover:text-white"
+                      className="bg-red-600 text-white border-white/30 hover:bg-red-800 hover:text-white"
                       onClick={handleLogout}
                     >
                       <LogOut className="h-4 w-4 mr-1" /> Sair
@@ -333,7 +333,7 @@ const Agenda = () => {
                 
                 <CardContent className="p-6">
                   <div className="grid md:grid-cols-3 gap-6">
-                    <div className="md:col-span-1">
+                    <div className="md:col-span-1 block">
                       <Card className="border-labor-200 shadow-sm hover:shadow transition-shadow duration-300">
                         <CardHeader className="bg-labor-50 pb-2">
                           <h3 className="font-medium text-labor-700">Calendário</h3>

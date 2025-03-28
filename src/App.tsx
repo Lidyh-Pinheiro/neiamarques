@@ -11,9 +11,18 @@ import Agenda from "./pages/Agenda";
 
 const queryClient = new QueryClient();
 
+// Add global styles for nav hover
+const globalStyles = `
+  .nav-item:hover {
+    color: white;
+    background-color: rgba(234, 28, 28, 0.7);
+  }
+`;
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <style>{globalStyles}</style>
       <Toaster />
       <Sonner />
       <BrowserRouter>

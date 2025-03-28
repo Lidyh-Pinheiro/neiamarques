@@ -2,13 +2,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Clock, Instagram, Facebook, MessageSquare } from "lucide-react";
+import { Calendar, Clock, Instagram, Facebook, MessageSquare, LogOut, Share2, Edit, Trash2, Plus } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import AgendaForm from "@/components/AgendaForm";
+import DeleteAgendaItem from "@/components/DeleteAgendaItem";
+import SocialShare from "@/components/SocialShare";
 
 interface AgendaPost {
   id: string;
@@ -24,6 +27,7 @@ const Agenda = () => {
   const [password, setPassword] = useState("");
   const [agendaPosts, setAgendaPosts] = useState<AgendaPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingPost, setEditingPost] = useState<AgendaPost | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,6 +76,17 @@ const Agenda = () => {
     }
   };
 
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setPassword("");
+    toast({
+      title: "Logout realizado",
+      description: "Você saiu da área administrativa",
+    });
+  };
+
+  const shareUrl = window.location.href;
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR', {
@@ -115,7 +130,7 @@ const Agenda = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-labor-50/50 bg-opacity-80">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-10 text-center">
@@ -131,11 +146,16 @@ const Agenda = () => {
                 <Facebook size={24} />
               </a>
             </div>
+            
+            {/* Share Button */}
+            <div className="mt-6 flex justify-center">
+              <SocialShare url={shareUrl} />
+            </div>
           </div>
           
           {!isAuthenticated ? (
             <div className="max-w-md mx-auto">
-              <Card className="border-labor-200 shadow-lg hover-scale">
+              <Card className="border-labor-200 shadow-lg hover-scale bg-white">
                 <CardHeader className="bg-labor-700 text-white rounded-t-lg py-6">
                   <h2 className="text-xl font-display font-semibold text-center">Acesso Administrativo</h2>
                 </CardHeader>
@@ -167,9 +187,22 @@ const Agenda = () => {
             </div>
           ) : (
             <div className="space-y-8">
-              <Card className="overflow-hidden border-labor-200 shadow-lg">
-                <CardHeader className="bg-labor-700 text-white py-4">
-                  <h2 className="text-xl font-display font-semibold">Programação da Semana</h2>
+              <Card className="bg-white rounded-lg shadow-md overflow-hidden border-labor-200 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="bg-labor-700 text-white py-4 flex flex-row justify-between items-center">
+                  <div>
+                    <h2 className="text-xl font-display font-semibold">Programação da Semana</h2>
+                  </div>
+                  <div className="flex gap-2">
+                    <AgendaForm onSuccess={fetchAgendaPosts} />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-white border-white/30 hover:bg-labor-800 hover:text-white"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="h-4 w-4 mr-1" /> Sair
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="p-0">
                   {isLoading ? (
@@ -182,6 +215,7 @@ const Agenda = () => {
                   ) : agendaPosts.length === 0 ? (
                     <div className="text-center py-12">
                       <h3 className="text-lg font-medium text-gray-500">Nenhum item na agenda</h3>
+                      <p className="text-gray-400 mt-2">Adicione novos itens usando o botão acima</p>
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-200">
@@ -189,25 +223,31 @@ const Agenda = () => {
                       <div className="md:hidden">
                         {agendaPosts.map((post) => (
                           <div key={post.id} className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex items-start gap-3">
-                              <div className="bg-labor-100 text-labor-700 rounded-full p-2 flex-shrink-0">
-                                {getTypeIcon(post.tipo)}
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-start gap-3">
+                                <div className="bg-labor-100 text-labor-700 rounded-full p-2 flex-shrink-0">
+                                  {getTypeIcon(post.tipo)}
+                                </div>
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                                    <span className="font-semibold text-labor-700">{formatDate(post.data)}</span>
+                                    <span className="text-sm text-gray-500">({getDayOfWeek(post.data)})</span>
+                                  </div>
+                                  <h3 className="font-medium text-gray-800">{post.titulo}</h3>
+                                  <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">{post.descricao}</p>
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    <span className="bg-labor-100 text-labor-700 text-xs px-2 py-1 rounded-full">
+                                      {post.tipo}
+                                    </span>
+                                    <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(post.status)}`}>
+                                      {post.status}
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
-                              <div>
-                                <div className="flex flex-wrap items-center gap-2 mb-1">
-                                  <span className="font-semibold text-labor-700">{formatDate(post.data)}</span>
-                                  <span className="text-sm text-gray-500">({getDayOfWeek(post.data)})</span>
-                                </div>
-                                <h3 className="font-medium text-gray-800">{post.titulo}</h3>
-                                <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">{post.descricao}</p>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                  <span className="bg-labor-100 text-labor-700 text-xs px-2 py-1 rounded-full">
-                                    {post.tipo}
-                                  </span>
-                                  <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(post.status)}`}>
-                                    {post.status}
-                                  </span>
-                                </div>
+                              <div className="flex space-x-1">
+                                <AgendaForm onSuccess={fetchAgendaPosts} editingPost={post} />
+                                <DeleteAgendaItem postId={post.id} onSuccess={fetchAgendaPosts} />
                               </div>
                             </div>
                           </div>
@@ -224,6 +264,7 @@ const Agenda = () => {
                               <TableHead>Título/Descrição</TableHead>
                               <TableHead className="w-[100px]">Tipo</TableHead>
                               <TableHead className="w-[100px]">Status</TableHead>
+                              <TableHead className="w-[80px]">Ações</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -248,6 +289,12 @@ const Agenda = () => {
                                     {post.status}
                                   </span>
                                 </TableCell>
+                                <TableCell>
+                                  <div className="flex space-x-1">
+                                    <AgendaForm onSuccess={fetchAgendaPosts} editingPost={post} />
+                                    <DeleteAgendaItem postId={post.id} onSuccess={fetchAgendaPosts} />
+                                  </div>
+                                </TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
@@ -258,7 +305,7 @@ const Agenda = () => {
                 </CardContent>
               </Card>
               
-              <div className="bg-white rounded-lg shadow-lg p-6 border border-labor-200">
+              <div className="bg-white rounded-lg shadow-md p-6 border border-labor-200 transition-all duration-300 hover:shadow-lg">
                 <h3 className="text-lg font-semibold mb-4 text-labor-700">Legenda</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="flex items-center gap-2">

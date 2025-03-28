@@ -9,7 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      agenda_posts: {
+        Row: {
+          created_at: string | null
+          data: string
+          descricao: string | null
+          id: string
+          status: string | null
+          tipo: string
+          titulo: string
+        }
+        Insert: {
+          created_at?: string | null
+          data: string
+          descricao?: string | null
+          id?: string
+          status?: string | null
+          tipo: string
+          titulo: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          descricao?: string | null
+          id?: string
+          status?: string | null
+          tipo?: string
+          titulo?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

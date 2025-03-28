@@ -1,7 +1,16 @@
 
 import { useState, useEffect } from 'react';
-import { Menu, X, Facebook, Instagram } from 'lucide-react';
+import { Menu, X, Facebook, Instagram, ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Link } from 'react-router-dom';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -58,6 +67,28 @@ const Navbar = () => {
             <a onClick={() => scrollToSection('about')} className="nav-item cursor-pointer">Perfil</a>
             <a onClick={() => scrollToSection('projects')} className="nav-item cursor-pointer">Projetos</a>
             <a onClick={() => scrollToSection('social')} className="nav-item cursor-pointer">Atuação</a>
+            
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="nav-item">Agenda</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="grid w-[200px] gap-3 p-4">
+                      <NavigationMenuLink asChild>
+                        <Link to="/agenda" 
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                          <div className="text-sm font-medium leading-none">Agenda de Postagens</div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Confira a agenda de publicações
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+            
             <a onClick={() => scrollToSection('contact')} className="nav-item cursor-pointer">Contato</a>
             
             <div className="ml-6 flex items-center space-x-3">
@@ -95,6 +126,7 @@ const Navbar = () => {
               <a onClick={() => scrollToSection('about')} className="text-foreground py-2 font-medium">Perfil</a>
               <a onClick={() => scrollToSection('projects')} className="text-foreground py-2 font-medium">Projetos</a>
               <a onClick={() => scrollToSection('social')} className="text-foreground py-2 font-medium">Atuação</a>
+              <Link to="/agenda" onClick={closeMenu} className="text-foreground py-2 font-medium">Agenda de Postagens</Link>
               <a onClick={() => scrollToSection('contact')} className="text-foreground py-2 font-medium">Contato</a>
               
               <div className="pt-4 flex space-x-4">

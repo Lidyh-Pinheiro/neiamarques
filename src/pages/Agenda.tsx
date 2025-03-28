@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Clock, Instagram, Facebook, MessageSquare, LogOut, Share2, Edit, Trash2, Plus } from "lucide-react";
+import { Calendar, Clock, Instagram, Facebook, MessageSquare, LogOut, Share2, Edit, Trash2, Plus, Settings } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import AgendaForm from "@/components/AgendaForm";
 import DeleteAgendaItem from "@/components/DeleteAgendaItem";
 import SocialShare from "@/components/SocialShare";
+import AdminSettings from "@/components/AdminSettings";
 
 interface AgendaPost {
   id: string;
@@ -25,9 +26,10 @@ interface AgendaPost {
 const Agenda = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
+  const [adminPassword, setAdminPassword] = useState("123");
   const [agendaPosts, setAgendaPosts] = useState<AgendaPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingPost, setEditingPost] = useState<AgendaPost | null>(null);
+  const [showAdminSettings, setShowAdminSettings] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,7 +63,7 @@ const Agenda = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "123") {
+    if (password === adminPassword) {
       setIsAuthenticated(true);
       toast({
         title: "Login realizado",
@@ -79,10 +81,15 @@ const Agenda = () => {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setPassword("");
+    setShowAdminSettings(false);
     toast({
       title: "Logout realizado",
       description: "Você saiu da área administrativa",
     });
+  };
+
+  const handlePasswordChange = (newPassword: string) => {
+    setAdminPassword(newPassword);
   };
 
   const shareUrl = window.location.href;
@@ -163,7 +170,7 @@ const Agenda = () => {
                   <form onSubmit={handleLogin} className="space-y-6">
                     <div className="text-center mb-6">
                       <h3 className="text-xl font-display font-semibold text-labor-700">Vereadora Neia Marques</h3>
-                      <p className="text-sm text-muted-foreground">Acesso à agenda de postagens</p>
+                      <p className="text-sm text-muted-foreground mt-2">Acompanhe a programação nas Redes Sociais da Vereadora Neia Marques</p>
                     </div>
                     
                     <div className="space-y-2">
@@ -185,6 +192,14 @@ const Agenda = () => {
                 </CardContent>
               </Card>
             </div>
+          ) : showAdminSettings ? (
+            <div className="max-w-md mx-auto">
+              <AdminSettings 
+                currentPassword={adminPassword}
+                onPasswordChange={handlePasswordChange}
+                onLogout={() => setShowAdminSettings(false)}
+              />
+            </div>
           ) : (
             <div className="space-y-8">
               <Card className="bg-white rounded-lg shadow-md overflow-hidden border-labor-200 transition-all duration-300 hover:shadow-lg">
@@ -194,6 +209,14 @@ const Agenda = () => {
                   </div>
                   <div className="flex gap-2">
                     <AgendaForm onSuccess={fetchAgendaPosts} />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-white border-white/30 hover:bg-labor-800 hover:text-white"
+                      onClick={() => setShowAdminSettings(true)}
+                    >
+                      <Settings className="h-4 w-4 mr-1" /> Admin
+                    </Button>
                     <Button 
                       variant="outline" 
                       size="sm" 
